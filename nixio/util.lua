@@ -13,6 +13,7 @@ $Id$
 ]]--
 
 local table = require "table"
+-- 这里的nixio 库是由 https://github.com/shankusu2017/openwrt-luci/tree/master/libs/luci-lib-nixio 生成的
 local nixio = require "nixio"
 local getmetatable, assert, pairs, type = getmetatable, assert, pairs, type
 local tostring = tostring

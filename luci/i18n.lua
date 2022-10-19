@@ -9,6 +9,7 @@ module "luci.i18n"
 
 i18ndir = util.libpath() .. "/i18n/"
 context = util.threadlocal()
+-- 系统缺省语言
 default = "en"
 
 

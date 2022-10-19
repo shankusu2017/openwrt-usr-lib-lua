@@ -8,6 +8,7 @@ local util = require "luci.util"
 local xml = require "luci.xml"
 local http = require "luci.http"
 local nixio = require "nixio", require "nixio.util"
+local ldebug = require "luci.debug"
 
 module("luci.dispatcher", package.seeall)
 context = util.threadlocal()
@@ -458,6 +459,7 @@ local function determine_request_language()
 	i18n.setlanguage(lang)
 end
 
+--外模块对外提供的接口
 function httpdispatch(request, prefix)
 	http.context.request = request
 
@@ -465,6 +467,8 @@ function httpdispatch(request, prefix)
 	context.request = r
 
 	local pathinfo = http.urldecode(request:getenv("PATH_INFO") or "", true)
+
+	ldebug.log(pathinfo)
 
 	if prefix then
 		for _, node in ipairs(prefix) do
@@ -824,7 +828,11 @@ local function resolve_firstchild(node, sacl, login_allowed, ctx)
 	return false
 end
 
+-- 从 页面构成的 tree 中查找 request_path 请求页面
 local function resolve_page(tree, request_path)
+	-- ldebug.PrintTable(tree)
+	ldebug.PrintTable(request_path)
+
 	local node = tree
 	local sacl = nil
 	local login = false
@@ -899,6 +907,7 @@ function dispatch(request)
 	ctx.requestargs = ctx.requestargs or lookup_ctx.request_args
 	ctx.requested = ctx.requested or page
 
+	-- 权限校验
 	if type(lookup_ctx.auth) == "table" and next(lookup_ctx.auth) then
 		local sid, sdat, sacl = is_authenticated(lookup_ctx.auth)
 
@@ -909,7 +918,9 @@ function dispatch(request)
 			if user == nil and pass == nil then
 				user = http.formvalue("luci_username")
 				pass = http.formvalue("luci_password")
+				ldebug.log("11111111 user: " .. tostring(user) .. " pass: " .. tostring(pass) .. "\n")
 			end
+
 
 			if user and pass then
 				sid, sdat, sacl = session_setup(user, pass)
@@ -936,6 +947,9 @@ function dispatch(request)
 
 			http.redirect(build_url(unpack(ctx.requestpath)))
 			return
+		else
+			ldebug.log("123444444444")
+			ldebug.PrintTable(lookup_ctx.auth)
 		end
 
 		if not sid or not sdat or not sacl then
@@ -949,6 +963,8 @@ function dispatch(request)
 		ctx.authuser = sdat.username
 		ctx.authacl = sacl
 	end
+	-- 权限检测通过
+
 
 	if #lookup_ctx.acls > 0 then
 		local perm = check_acl_depends(lookup_ctx.acls, ctx.authacl and ctx.authacl["access-group"])

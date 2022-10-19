@@ -1,8 +1,12 @@
 -- Copyright 2008 Steven Barth <steven@midlink.org>
 -- Licensed to the public under the Apache License 2.0.
 
+local ldebug = require "luci.debug"
+
 module("luci.controller.admin.index", package.seeall)
 
+-- 登出
+-- 销毁sid, 重定位到主页面
 function action_logout()
 	local dsp = require "luci.dispatcher"
 	local utl = require "luci.util"

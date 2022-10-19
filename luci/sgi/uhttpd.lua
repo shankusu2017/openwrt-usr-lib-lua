@@ -6,6 +6,7 @@ require "luci.http"
 require "luci.sys"
 require "luci.dispatcher"
 require "luci.ltn12"
+local ldebug = require "luci.debug"
 
 function handle_request(env)
 	exectime = os.clock()
@@ -54,6 +55,8 @@ function handle_request(env)
 	local req = luci.http.Request(
 		renv, recv, luci.ltn12.sink.file(io.stderr)
 	)
+
+	ldebug.PrintTable(renv)
 
 
 	local x = coroutine.create(luci.dispatcher.httpdispatch)

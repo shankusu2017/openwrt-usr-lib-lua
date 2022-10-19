@@ -82,6 +82,7 @@ end
 
 
 -- Renders a template
+-- render: 渲染
 function Template.render(self, scope)
 	scope = scope or getfenv(2)
 
